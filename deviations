@@ -61,7 +61,7 @@ Sub Desviaciones()
         
            
             employeeString = "select distinct employee.user_id,employee.location,employee.first_name,employee.last_name,line_manager,jobName,jobid,employee.position from employee where employee.user_id = '" & rsQuery("user_id") & "'"
-            'Debug.Print employeeString
+            Debug.Print employeeString
             Set employeeQuery = CurrentDb.OpenRecordset(employeeString)
             
             
@@ -69,7 +69,7 @@ Sub Desviaciones()
             hsrString1 = " select algo2.erd,business_role,justificacion from " & _
                         " ( " & _
                         " select pramjobs.erd,pramjobs.business_role from " & _
-                        " (select distinct pramjobs.erd,pramjobs.business_role from pramjobs inner join hsr on pramjobs.erd = hsr.erd where (mid(pramjobs.erd,7,1) <> '2' and mid(pramjobs.erd,7,1) <> '3' and mid(pramjobs.erd,7,1) <> '4' and mid(pramjobs.erd,7,1) <> '5' and mid(pramjobs.erd,7,1) <> '6') and pramjobs.user_id = '" & rsQuery("user_id") & "'  ) as myResult1 " & _
+                        " (select distinct pramjobs.erd,pramjobs.business_role from pramjobs inner join hsr on pramjobs.erd = hsr.erd where (mid(pramjobs.erd,7,1) <> '2' and mid(pramjobs.erd,7,1) <> '3' and mid(pramjobs.erd,7,1) <> '4' and mid(pramjobs.erd,7,1) <> '6') and pramjobs.user_id = '" & rsQuery("user_id") & "' and (cluster like '*Chile*' or cluster like '*Bolivia*' or cluster like '*NPDI*') ) as myResult1 " & _
                         " Left Join " & _
                         " (select erd from hsr where jobId = '" & employeeQuery("jobid") & "') as myResult2 " & _
                         " on myResult1.erd = myResult2.erd " & _
@@ -82,7 +82,7 @@ Sub Desviaciones()
                         " select algo2.erd,business_role,justificacion from " & _
                         " ( " & _
                         " select pramjobs.erd,pramjobs.business_role from " & _
-                        " (select distinct pramjobs.erd,pramjobs.business_role from pramjobs inner join hsr on pramjobs.erd = hsr.erd where (mid(pramjobs.erd,7,1) <> '2' and mid(pramjobs.erd,7,1) <> '3' and mid(pramjobs.erd,7,1) <> '4' and mid(pramjobs.erd,7,1) <> '5' and mid(pramjobs.erd,7,1) <> '6') and pramjobs.user_id = '" & rsQuery("user_id") & "' ) as myResult1 " & _
+                        " (select distinct pramjobs.erd,pramjobs.business_role from pramjobs inner join hsr on pramjobs.erd = hsr.erd where (mid(pramjobs.erd,7,1) <> '2' and mid(pramjobs.erd,7,1) <> '3' and mid(pramjobs.erd,7,1) <> '4' and mid(pramjobs.erd,7,1) <> '6') and pramjobs.user_id = '" & rsQuery("user_id") & "' and (cluster like '*Chile*' or cluster like '*Bolivia*' or cluster like '*NPDI*')  ) as myResult1 " & _
                         " Left Join " & _
                         " (select erd from hsr where jobId = '" & employeeQuery("jobid") & "') as myResult2 " & _
                         " on myResult1.erd = myResult2.erd " & _
@@ -97,7 +97,7 @@ Sub Desviaciones()
                         " select algo2.erd,business_role,justificacion from " & _
                         " ( " & _
                         " select pramjobs.erd,pramjobs.business_role from " & _
-                        " (select distinct pramjobs.erd,pramjobs.business_role from pramjobs inner join hsr on pramjobs.erd = hsr.erd where (mid(pramjobs.erd,7,1) <> '2' and mid(pramjobs.erd,7,1) <> '3' and mid(pramjobs.erd,7,1) <> '4' and mid(pramjobs.erd,7,1) <> '5' and mid(pramjobs.erd,7,1) <> '6') and pramjobs.user_id = '" & rsQuery("user_id") & "' ) as myResult1 " & _
+                        " (select distinct pramjobs.erd,pramjobs.business_role from pramjobs inner join hsr on pramjobs.erd = hsr.erd where (mid(pramjobs.erd,7,1) <> '2' and mid(pramjobs.erd,7,1) <> '3' and mid(pramjobs.erd,7,1) <> '4' and mid(pramjobs.erd,7,1) <> '6') and pramjobs.user_id = '" & rsQuery("user_id") & "' and (cluster like '*Chile*' or cluster like '*Bolivia*' or cluster like '*NPDI*')) as myResult1 " & _
                         " Left Join " & _
                         " (select erd from hsr where jobId = '" & employeeQuery("jobid") & "' ) as myResult2 " & _
                         " on myResult1.erd = myResult2.erd " & _
@@ -145,115 +145,6 @@ Sub Desviaciones()
                     wsTarget.Cells(myInt, 10).Value = employeeQuery("line_manager")
                     wsTarget.Cells(myInt, 11).Value = hsrQuery("justificacion")
                     'wsTarget.Cells(myInt, 12).Value = hsrString
-                    'Debug.Print myCell
-                    myInt = myInt + 1
-                    
-                    
-                    
-                    
-                    hsrQuery.MoveNext
-                Wend
-            End If
-            hsrQuery.Close
-            Set hsrQuery = Nothing
-            
-            rsQuery.MoveNext
-        Wend
-    End If
-    rsQuery.Close
-    Set rsQuery = Nothing
-
-    
-    
-End Sub
-
-Sub DesviacionesOLD()
-
-    Dim hsrQuery As DAO.Recordset
-    Dim hsrString As String
-    Set hsrQuery = CurrentDb.OpenRecordset("hsr")
-
-    Dim rsQuery As DAO.Recordset
-    Dim rsString As String
-    Dim tempString As String
-    
-    
-    Dim employeeQuery As DAO.Recordset
-    Dim employeeString As String
-    
-
-    Dim testQuery As DAO.Recordset
-    Dim testString As String
-    
-
-    Dim excepcionesQuery As DAO.Recordset
-    Dim excepcionesString As String
-    Dim myTempString As String
-    
-    
-    'workbook where the data is to be pasted
-    Dim wbTarget As Workbook
-    Dim wsTarget As Worksheet
-    Dim myInt As Integer
-
-    myInt = 1
-    'open a workbook that has same name as the sheet name
-    Set wbTarget = Workbooks.Open("C:\Users\clcardensi\Desktop\myExcelJob.xlsx")
-    Set wsTarget = wbTarget.Worksheets("Hoja1")
-    
-    
-    
-    
-
-    Set rsQuery = CurrentDb.OpenRecordset("select distinct pramjobs.user_id from pramjobs inner join employee on pramjobs.user_id = employee.user_id")
-    
-    
-
-    If rsQuery.RecordCount <> 0 Then
-        rsQuery.MoveFirst
-        While Not rsQuery.EOF
-        
-           
-            employeeString = "select distinct employee.user_id,employee.location,employee.first_name,employee.last_name,line_manager,jobName,jobid,employee.position from employee where employee.user_id = '" & rsQuery("user_id") & "'"
-            'Debug.Print employeeString
-            Set employeeQuery = CurrentDb.OpenRecordset(employeeString)
-            
-            
-            'SE ELIMINAN LOS ROLES 2,3,4,5,6,7
-            hsrString = "select pramjobs.erd,pramjobs.business_role from " & _
-                    " (select distinct pramjobs.erd,pramjobs.business_role from pramjobs inner join hsr on pramjobs.erd = hsr.erd where (mid(pramjobs.erd,7,1) <> '2' and mid(pramjobs.erd,7,1) <> '3' and mid(pramjobs.erd,7,1) <> '4' and mid(pramjobs.erd,7,1) <> '5' and mid(pramjobs.erd,7,1) <> '6') and pramjobs.user_id = '" & rsQuery("user_id") & "') as myResult1 " & _
-                    " Left Join " & _
-                    " (select erd from hsr where jobId = '" & employeeQuery("jobid") & "'" & ") as myResult2 " & _
-                    " on myResult1.erd = myResult2.erd " & _
-                    " where myResult2.erd Is Null "
-            
-            Debug.Print hsrString
-            Set hsrQuery = CurrentDb.OpenRecordset(hsrString)
-        
-            'Debug.Print rsQuery("user_id")
-            'Debug.Print employeeQuery("jobName")
-            'employeeQuery ("Location")
-            
-            If hsrQuery.RecordCount <> 0 Then
-                hsrQuery.MoveFirst
-                While Not hsrQuery.EOF
-                    
-          
-                     
-                    
-                    
-                    'myCell = "A" & myInt
-                    wsTarget.Cells(myInt, 1).Value = employeeQuery("user_id")
-                    wsTarget.Cells(myInt, 2).Value = employeeQuery("first_name")
-                    wsTarget.Cells(myInt, 3).Value = employeeQuery("last_name")
-                    wsTarget.Cells(myInt, 4).Value = employeeQuery("jobId")
-                    wsTarget.Cells(myInt, 5).Value = employeeQuery("jobName")
-                    wsTarget.Cells(myInt, 6).Value = employeeQuery("position")
-                    wsTarget.Cells(myInt, 6).Value = employeeQuery("location")
-                    wsTarget.Cells(myInt, 7).Value = hsrQuery("erd")
-                    wsTarget.Cells(myInt, 8).Value = hsrQuery("business_role")
-                    wsTarget.Cells(myInt, 9).Value = employeeQuery("line_manager")
-                    wsTarget.Cells(myInt, 10).Value = hsrString
                     'Debug.Print myCell
                     myInt = myInt + 1
                     
