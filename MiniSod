@@ -1,0 +1,199 @@
+Sub MiniSod()
+    Dim sodQuery As DAO.Recordset
+    Dim sodString As String
+    
+    Dim usersQuery As DAO.Recordset
+    Set usersQuery = CurrentDb.OpenRecordset("select distinct user_id from pramjobs where user_id like 'bo*' or user_id like 'cl*' or user_id like 'pe*' or user_id like 'nn*'    ")
+    'Set usersQuery = CurrentDb.OpenRecordset("select distinct user_id from pramjobs where user_id = 'clgaetee'   ")
+    Dim candidateQuery As DAO.Recordset
+    Dim candidateString As String
+    
+    Dim lastCheck As DAO.Recordset
+    Dim lastCheckInt As Integer
+    Dim lastCheckString As String
+    
+    Dim sodNum As Integer
+    Dim sum As Integer
+    
+    Dim sArray() As String
+    
+    Dim i As Integer
+
+    Dim wbTarget As Workbook
+    Dim wsTarget As Worksheet
+    Dim MyInt As Integer
+    rowNumber = 1
+    'open a workbook that has same name as the sheet name
+    Set wbTarget = Workbooks.Open("C:\Users\clcardensi\Desktop\myExcelJob.xlsx")
+    Set wsTarget = wbTarget.Worksheets("Hoja1")
+    
+    Dim Cases As Integer
+    
+    
+    If usersQuery.RecordCount <> 0 Then
+        usersQuery.MoveFirst
+        While Not usersQuery.EOF
+
+            sodString = " SELECT DISTINCT ERD FROM (" & _
+            " SELECT distinct erd from pramjobs inner join sod on pramjobs.erd = sod.erd1 where ( user_id = '" & usersQuery("user_id") & "' and  mid(erd,7,1) <> '3' and mid(erd,7,1) <> '2') and (cluster like '*Chile*' or cluster like '*Bolivia*' ) " & _
+            " UNION ALL " & _
+            " SELECT distinct erd from pramjobs inner join sod on pramjobs.erd = sod.erd2 where ( user_id = '" & usersQuery("user_id") & "' and  mid(erd,7,1) <> '3' and mid(erd,7,1) <> '2') and (cluster like '*Chile*' or cluster like '*Bolivia*' ) " & _
+            " UNION ALL " & _
+            " SELECT distinct erd from pramjobs inner join sod on pramjobs.erd = sod.erd3 where ( user_id = '" & usersQuery("user_id") & "' and  mid(erd,7,1) <> '3' and mid(erd,7,1) <> '2') and (cluster like '*Chile*' or cluster like '*Bolivia*' ) " & _
+            " UNION ALL " & _
+            " SELECT distinct erd from pramjobs inner join sod on pramjobs.erd = sod.erd4 where ( user_id = '" & usersQuery("user_id") & "' and  mid(erd,7,1) <> '3' and mid(erd,7,1) <> '2') and (cluster like '*Chile*' or cluster like '*Bolivia*' ) " & _
+            " UNION ALL " & _
+            " SELECT distinct erd from pramjobs inner join sod on pramjobs.erd = sod.erd5 where ( user_id = '" & usersQuery("user_id") & "' and  mid(erd,7,1) <> '3' and mid(erd,7,1) <> '2') and (cluster like '*Chile*' or cluster like '*Bolivia*' ) " & _
+            " UNION ALL " & _
+            " SELECT distinct erd from pramjobs inner join sod on pramjobs.erd = sod.erd6 where ( user_id = '" & usersQuery("user_id") & "' and  mid(erd,7,1) <> '3' and mid(erd,7,1) <> '2') and (cluster like '*Chile*' or cluster like '*Bolivia*' ) " & _
+            " ) "
+
+            Debug.Print usersQuery("user_id")
+
+            
+            Set sodQuery = CurrentDb.OpenRecordset(sodString)
+            If sodQuery.RecordCount <> 0 Then
+                sodQuery.MoveFirst
+                While Not sodQuery.EOF
+                    candidateString = "select * from sod where erd1 = '" & sodQuery("ERD") & "'"
+                    Set candidateQuery = CurrentDb.OpenRecordset(candidateString)
+                    If candidateQuery.RecordCount <> 0 Then
+                        candidateQuery.MoveFirst
+
+                        While Not candidateQuery.EOF
+                            sum = 0
+                            lastCheckInt = 1
+                            If candidateQuery("roleId1") <> "" Then
+                                sum = sum + 1
+                            End If
+                            
+                            If candidateQuery("roleId2") <> "" Then
+                                sum = sum + 1
+                            End If
+                            
+                            If candidateQuery("roleId3") <> "" Then
+                                sum = sum + 1
+                            End If
+                            
+                            If candidateQuery("roleId4") <> "" Then
+                                sum = sum + 1
+                            End If
+                            
+                            If candidateQuery("roleId5") <> "" Then
+                                sum = sum + 1
+                            End If
+                            
+                            If candidateQuery("roleId6") <> "" Then
+                                sum = sum + 1
+                            End If
+                            'Debug.Print usersQuery("user_id") & " " & sodQuery("ERD") & " " & candidateQuery("roleId1") & " " & candidateQuery("roleId2") & " " & candidateQuery("roleId3") & " " & candidateQuery("roleId4") & " " & candidateQuery("roleId5") & " " & candidateQuery("roleId6") & " " & sum
+                            
+                            ReDim sArray(sum)
+                            
+                            While lastCheckInt <= sum
+                                sodNum = 1
+                                lastCheckString = "select distinct erd from pramjobs where user_id = '" & usersQuery("user_id") & "' and erd = 'ERD000" & candidateQuery("roleId" & CStr(lastCheckInt)) & "'"
+                                Set lastCheck = CurrentDb.OpenRecordset(lastCheckString)
+                                'Debug.Print lastCheckString
+                                If lastCheck.RecordCount <> 0 Then
+                                    lastCheck.MoveFirst
+                                    sArray(lastCheckInt - 1) = lastCheck("ERD")
+                                    sodNum = sodNum + 1
+                                    'Debug.Print lastCheck("erd")
+                                End If
+                                lastCheckInt = lastCheckInt + 1
+                            Wend
+
+                            
+                            If sodNum = sum Then
+                                
+                                If sum = 2 Then
+                                    While i <= sum
+                                        wsTarget.Cells(rowNumber, 1).Value = usersQuery("user_id")
+                                        wsTarget.Cells(rowNumber, 2).Value = sArray(0)
+                                        wsTarget.Cells(rowNumber, 3).Value = sArray(1)
+                                        Debug.Print "SOD FOUND: " & sodQuery("ERD")
+                                        i = i + 1
+                                    Wend
+                                End If
+                                
+                                If sum = 3 Then
+                                    While i <= sum
+                                        wsTarget.Cells(rowNumber, 1).Value = usersQuery("user_id")
+                                        wsTarget.Cells(rowNumber, 2).Value = sArray(0)
+                                        wsTarget.Cells(rowNumber, 3).Value = sArray(1)
+                                        wsTarget.Cells(rowNumber, 4).Value = sArray(2)
+                                        Debug.Print "SOD FOUND: " & sodQuery("ERD")
+                                        i = i + 1
+                                    Wend
+                                End If
+                                
+                                                             
+                                If sum = 4 Then
+                                    While i <= sum
+                                        wsTarget.Cells(rowNumber, 1).Value = usersQuery("user_id")
+                                        wsTarget.Cells(rowNumber, 2).Value = sArray(0)
+                                        wsTarget.Cells(rowNumber, 3).Value = sArray(1)
+                                        wsTarget.Cells(rowNumber, 4).Value = sArray(2)
+                                        wsTarget.Cells(rowNumber, 5).Value = sArray(3)
+                                        Debug.Print "SOD FOUND: " & sodQuery("ERD")
+                                        i = i + 1
+                                    Wend
+                                End If
+                                                             
+                                If sum = 5 Then
+                                    While i <= sum
+                                        wsTarget.Cells(rowNumber, 1).Value = usersQuery("user_id")
+                                        wsTarget.Cells(rowNumber, 2).Value = sArray(0)
+                                        wsTarget.Cells(rowNumber, 3).Value = sArray(1)
+                                        wsTarget.Cells(rowNumber, 4).Value = sArray(2)
+                                        wsTarget.Cells(rowNumber, 5).Value = sArray(3)
+                                        wsTarget.Cells(rowNumber, 6).Value = sArray(4)
+                                        Debug.Print "SOD FOUND: " & sodQuery("ERD")
+                                        i = i + 1
+                                    Wend
+                                End If
+                                                             
+                           
+                                If sum = 6 Then
+                                    While i <= sum
+                                        wsTarget.Cells(rowNumber, 1).Value = usersQuery("user_id")
+                                        wsTarget.Cells(rowNumber, 2).Value = sArray(0)
+                                        wsTarget.Cells(rowNumber, 3).Value = sArray(1)
+                                        wsTarget.Cells(rowNumber, 4).Value = sArray(2)
+                                        wsTarget.Cells(rowNumber, 5).Value = sArray(3)
+                                        wsTarget.Cells(rowNumber, 6).Value = sArray(4)
+                                        wsTarget.Cells(rowNumber, 7).Value = sArray(5)
+                                        Debug.Print "SOD FOUND: " & sodQuery("ERD")
+                                        i = i + 1
+                                    Wend
+                                End If
+                                
+                                i = 0
+                                rowNumber = rowNumber + 1
+                            End If
+                                                                                    
+                            candidateQuery.MoveNext
+                        Wend
+                    End If
+                    candidateQuery.Close
+                    Set candidateQuery = Nothing
+                    
+                    sodQuery.MoveNext
+                Wend
+            End If
+            sodQuery.Close
+            Set sodQuery = Nothing
+            
+            
+            usersQuery.MoveNext
+        Wend
+    End If
+    usersQuery.Close
+    Set usersQuery = Nothing
+    
+    Debug.Print "Programa terminado"
+    
+    
+
+End Sub
